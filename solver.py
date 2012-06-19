@@ -68,21 +68,7 @@ def atualize4(DG, valor_fluxo, lista):
             break
 
 
-if __name__ == '__main__':
-    DG = nx.DiGraph()
-    DG.add_nodes_from([(1, {'demand': -20}),
-                       (2, {'demand': 5}),
-                       (3, {'demand': 7}),
-                       (4, {'demand': 8}),
-                       (5, {'demand': 0})])
-    DG.add_edges_from([(1, 2, {'capacity': 10, 'weight': 8, 'fluxo': 0}),
-                       (1, 4, {'capacity': 3,  'weight': 2, 'fluxo': 0}),
-                       (1, 5, {'capacity': 10, 'weight': 7, 'fluxo': 0}),
-                       (2, 3, {'capacity': 5,  'weight': 3, 'fluxo': 0}),
-                       (4, 2, {'capacity': 8,  'weight': 6, 'fluxo': 0}),
-                       (4, 3, {'capacity': 9,  'weight': 4, 'fluxo': 0}),
-                       (5, 4, {'capacity': 7,  'weight': 5, 'fluxo': 0})])
-
+def solve(DG):
     no_de_oferta = None
     lista_nos_de_demanda = []
 
@@ -109,3 +95,20 @@ if __name__ == '__main__':
     edges = DG.edges(data=True)
     for edge in edges:
         print '(%d, %d) -> Fluxo: %d' % (edge[0], edge[1], edge[2]['fluxo'])
+
+
+if __name__ == '__main__':
+    DG = nx.DiGraph()
+    DG.add_nodes_from([(1, {'demand': -20}),
+                       (2, {'demand': 5}),
+                       (3, {'demand': 7}),
+                       (4, {'demand': 8}),
+                       (5, {'demand': 0})])
+    DG.add_edges_from([(1, 2, {'capacity': 10, 'weight': 8, 'fluxo': 0}),
+                       (1, 4, {'capacity': 3,  'weight': 2, 'fluxo': 0}),
+                       (1, 5, {'capacity': 10, 'weight': 7, 'fluxo': 0}),
+                       (2, 3, {'capacity': 5,  'weight': 3, 'fluxo': 0}),
+                       (4, 2, {'capacity': 8,  'weight': 6, 'fluxo': 0}),
+                       (4, 3, {'capacity': 9,  'weight': 4, 'fluxo': 0}),
+                       (5, 4, {'capacity': 7,  'weight': 5, 'fluxo': 0})])
+    solve(DG)
