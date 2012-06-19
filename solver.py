@@ -19,9 +19,8 @@ def carregue_no_de_oferta(DG):
 def limite_superior_caminho(DG, lista):
     menor_capacidade = DG[lista[0]][lista[1]]['capacity']
     for (idx, item) in enumerate(lista):
-        capacidade_1 = DG[lista[idx]][lista[idx + 1]]['capacity']
-        # capacidade_2 = DG[lista[idx + 1]][lista[idx + 2]]['capacity']
-        menor_capacidade = min(capacidade_1, menor_capacidade)
+        capacidade_atual = DG[lista[idx]][lista[idx + 1]]['capacity']
+        menor_capacidade = min(capacidade_atual, menor_capacidade)
         if idx == len(lista) - 2:
             break
     return menor_capacidade
@@ -42,6 +41,8 @@ def atualize1(DG, valor_fluxo, lista):
 def atualize2(DG, lista):
     for (idx, item) in enumerate(lista):
         try:
+            # Se esse arco não foi completamente utilizado
+            # torne nulo seu custo
             if DG[lista[idx]][lista[idx + 1]]['weight'] != float('inf'):
                 DG[lista[idx]][lista[idx + 1]]['weight'] = 0
         except KeyError:
@@ -89,15 +90,22 @@ if __name__ == '__main__':
     lista_nos_de_demanda = carregue_nos_de_demanda(DG)
     while len(lista_nos_de_demanda) > 0:
         no_de_demanda = lista_nos_de_demanda[0]
-        dijkstra_path = nx.dijkstra_path(DG, source=no_de_oferta, target=no_de_demanda)
-        valor_fluxo = min(limite_superior_caminho(DG, dijkstra_path), DG.node[no_de_demanda]['demand'])
+        dijkstra_path = nx.dijkstra_path(DG,
+                                         source=no_de_oferta,
+                                         target=no_de_demanda)
+        limite_superior = limite_superior_caminho(DG, dijkstra_path)
+        valor_fluxo = min(limite_superior, DG.node[no_de_demanda]['demand'])
         atualize1(DG, valor_fluxo, dijkstra_path)
+
         atualize2(DG, dijkstra_path)
-        atualize3(DG, valor_fluxo, dijkstra_path, no_de_oferta, lista_nos_de_demanda)
+
+        atualize3(DG, valor_fluxo,
+                  dijkstra_path, no_de_oferta,
+                  lista_nos_de_demanda)
+
         atualize4(DG, valor_fluxo, dijkstra_path)
 
     # Imprima a solução
     edges = DG.edges(data=True)
     for edge in edges:
         print '(%d, %d) -> Fluxo: %d' % (edge[0], edge[1], edge[2]['fluxo'])
-
