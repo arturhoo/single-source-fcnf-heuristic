@@ -1,6 +1,6 @@
-## Heurística para o problema Single Source Fixed Charge Network Flow
+# Heurística para o problema Single Source Fixed Charge Network Flow
 
-### Heurística
+## Heurística
 
 Enquanto existir nó de demanda não satisfeito:
 
@@ -17,7 +17,41 @@ caminho);
     4. Os fluxos das arestas do caminho, incrementando-os com o valor do fluxo
     calculado em `2`;
 
-### Implementação
+
+## Gerador
+
+O descritor lê o arquivo `input` na pasta corrente. Este arquivo deve possuir
+uma sequência de descritores de instâncias, conforme a seguir:
+
+* A primeira linha contém o número de descritores `N`
+* Os descritores são apresentados em sequência com as seguintes linhas:
+    1. Número de instâncias para esse descritor `I[i], i = 0...N-1`
+    2. Número de nós de demanda
+    3. Número de nós de transbordo
+    4. Número de arestas
+    5. Valor máximo para as demandas
+    6. Valor máximo para as capacidades dos arcos
+    7. Valor máximo para os custos dos arcos
+
+Para cada instância é gerado um arquivo `instanciaXY`, em que `X` é o valor do
+descritor de `0` a `N-1` e `Y`   é a ordem da instância do descrito de `0` a `I[X]-1`.
+
+### Instâncias geradas
+
+Foram geradas 18 instâncias:
+
+* pequenas: 5 nós
+    * 3 não densas: 8 arestas
+    * 3 densas: 13 arestas
+* médias: 10 nós
+    * 3 não densas: 40 arestas
+    * 3 densas: 60 arestas
+* grandes: 15 nós
+    * 3 não densas: 70 arestas
+    * 3 densas: 150 arestas
+
+
+## Implementação
 
 A implementação foi feita em Python e pode ser encontrada no arquivo
 `solver.py`. A implementação depende do pacote
