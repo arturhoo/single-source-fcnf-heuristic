@@ -33,10 +33,24 @@ uma sequência de descritores de instâncias, conforme a seguir:
     6. Valor máximo para as capacidades dos arcos
     7. Valor máximo para os custos dos arcos
 
-Para cada instância é gerado um arquivo `instanciaXY`, em que `X` é o valor do
-descritor de `0` a `N-1` e `Y`   é a ordem da instância do descrito de `0` a `I[X]-1`.
+Para cada instância são gerados dois arquivos `instanciaXY` e `py_instanciaXY`,
+em que `X` é o valor do descritor de `0` a `N-1` e `Y`   é a ordem da instância
+do descrito de `0` a `I[X]-1`. O primeiro arquivo serve de entrada para o `glpk`
+e o segundo é a representação serializada do grafo do tipo `networkx.Digraph`
+que pode ser utilizada no `solver.py` como demonstrado abaixo:
 
-### Instâncias geradas
+```python
+from cPickle import load
+from solver import solve
+DG = load(open('instancias/2012-06-23-12-35-04/py_instancia42', 'r'))
+solve(DG)
+```
+
+Cada lote de instância gerado fica guardado dentro da pasta `instancias/`, sendo
+que cada lote tem sua própria pasta no formato `%Y-%m-%d-%H-%M-%S` que
+representa o momento em que o lote foi gerado.
+
+### Instâncias **originais** geradas
 
 Foram geradas 18 instâncias:
 

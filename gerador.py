@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import networkx as nx
 import random as rand
+import os
+from cPickle import dump
+from datetime import datetime
 
 
 def generate_demands(graph, n, u):
@@ -35,7 +38,8 @@ def generate_edges(graph, n, u, c):
             e_added += 1
             cap = rand.randrange(u / 2 + 1, u + 1)  # evita grande dispersão de valores através do lowerbound u / 2 + 1
             cost = rand.randrange(0, c + 1)
-            graph.add_edge(origin, destiny, {'capacity': cap, 'cost': cost})
+            graph.add_edge(origin, destiny, \
+                          {'capacity': cap, 'weight': cost, 'fluxo': 0})
 
 
 def format_output(graph):
@@ -59,7 +63,9 @@ def format_output(graph):
 
     output += 'param:\t\tu\t\tc :=\n'
     for edge in graph.edges():
-        output += str(edge[0]) + ',' + str(edge[1]) + '\t\t' + str(graph.edge[edge[0]][edge[1]]['capacity']) + '\t\t' + str(graph.edge[edge[0]][edge[1]]['cost']) + '\n'
+        output += str(edge[0]) + ',' + str(edge[1]) + '\t\t' + \
+                  str(graph.edge[edge[0]][edge[1]]['capacity']) + '\t\t' + \
+                  str(graph.edge[edge[0]][edge[1]]['weight']) + '\n'
 
     output += ';\n\nend;\n'
 
@@ -103,7 +109,16 @@ if __name__ == '__main__':
 
         for j in range(0, n_inst):
             graph = nx.DiGraph()
-            out = open('instancia' + str(i) + str(j), 'w')
+
+            fmt = '%Y-%m-%d-%H-%M-%S'
+            time_now = datetime.now().strftime(fmt)
+            directory = 'instancias/' + time_now + '/'
+
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+
+            glpk_out = open(directory + 'instancia' + str(i) + str(j), 'w')
+            py_out = open(directory + 'py_instancia' + str(i) + str(j), 'w')
             if error == '':
                 generate_demands(graph, n_dem, u_dem)
                 generate_transships(graph, n_tr)
@@ -113,7 +128,8 @@ if __name__ == '__main__':
             else:
                 output = error
 
-            out.write(output)
-            out.close()
+            dump(graph, py_out)
+            glpk_out.write(output)
+            glpk_out.close()
 
     f.close()
