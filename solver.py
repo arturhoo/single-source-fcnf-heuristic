@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 import networkx as nx
+import argparse as ap
+import sys
+from time import time
+from cPickle import load
 
 
 def carregue_nos_de_demanda(DG):
@@ -71,7 +75,6 @@ def atualize4(DG, valor_fluxo, lista):
 def solve(DG):
     no_de_oferta = None
     lista_nos_de_demanda = []
-
     no_de_oferta = carregue_no_de_oferta(DG)
     lista_nos_de_demanda = carregue_nos_de_demanda(DG)
     while len(lista_nos_de_demanda) > 0:
@@ -91,24 +94,32 @@ def solve(DG):
 
         atualize4(DG, valor_fluxo, dijkstra_path)
 
-    # Imprima a solução
-    edges = DG.edges(data=True)
-    for edge in edges:
-        print '(%d, %d) -> Fluxo: %d' % (edge[0], edge[1], edge[2]['fluxo'])
-
 
 if __name__ == '__main__':
+    parser = ap.ArgumentParser(description='Single Source FCNF Heuristic')
+    parser.add_argument('-f', '--file', help='arquivo de entrada', required=True)
+    args = vars(parser.parse_args())
+
     DG = nx.DiGraph()
-    DG.add_nodes_from([(1, {'demand': -20}),
-                       (2, {'demand': 5}),
-                       (3, {'demand': 7}),
-                       (4, {'demand': 8}),
-                       (5, {'demand': 0})])
-    DG.add_edges_from([(1, 2, {'capacity': 10, 'weight': 8, 'fluxo': 0}),
-                       (1, 4, {'capacity': 3,  'weight': 2, 'fluxo': 0}),
-                       (1, 5, {'capacity': 10, 'weight': 7, 'fluxo': 0}),
-                       (2, 3, {'capacity': 5,  'weight': 3, 'fluxo': 0}),
-                       (4, 2, {'capacity': 8,  'weight': 6, 'fluxo': 0}),
-                       (4, 3, {'capacity': 9,  'weight': 4, 'fluxo': 0}),
-                       (5, 4, {'capacity': 7,  'weight': 5, 'fluxo': 0})])
+    try:
+        DG = load(open(args['file'], 'r'))
+    except IOError as e:
+        print "I/O error({0}): {1}".format(e.errno, e.strerror)
+        sys.exit()
+    except:
+        print "Unexpected error:", sys.exc_info()[0]
+        sys.exit()
+
+    DG_copy = nx.DiGraph(DG)
+    start = time()
     solve(DG)
+    elapsed = (time() - start)
+    print 'Tempo execução: %f' % (elapsed)
+    # Imprima a solução
+    edges = DG.edges(data=True)
+    objective = 0
+    for edge in edges:
+        if edge[2]['fluxo'] > 0:
+            objective += DG_copy[edge[0]][edge[1]]['weight']
+        # print '(%d, %d) -> Fluxo: %f' % (edge[0], edge[1], edge[2]['weight'])
+    print 'Objective: %d' % (objective)
