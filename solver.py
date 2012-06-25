@@ -100,29 +100,43 @@ def solve(DG):
 
 if __name__ == '__main__':
     parser = ap.ArgumentParser(description='Single Source FCNF Heuristic')
-    parser.add_argument('-f', '--file', help='arquivo de entrada', required=True)
+    parser.add_argument('-f', '--file', help='arquivo de entrada')
     args = vars(parser.parse_args())
 
     DG = nx.DiGraph()
-    try:
-        DG = load(open(args['file'], 'r'))
-    except IOError as e:
-        print "I/O error({0}): {1}".format(e.errno, e.strerror)
-        sys.exit()
-    except:
-        print "Unexpected error:", sys.exc_info()[0]
-        sys.exit()
+    if args['file']:
+        try:
+            DG = load(open(args['file'], 'r'))
+        except IOError as e:
+            print "I/O error({0}): {1}".format(e.errno, e.strerror)
+            sys.exit()
+        except:
+            print "Unexpected error:", sys.exc_info()[0]
+            sys.exit()
+    else:
+        DG.add_nodes_from([(1, {'demand': -20}),
+                           (2, {'demand': 5}),
+                           (3, {'demand': 7}),
+                           (4, {'demand': 8}),
+                           (5, {'demand': 0})])
+        DG.add_edges_from([(1, 2, {'capacity': 10, 'weight': 8, 'fluxo': 0}),
+                           (1, 4, {'capacity': 3,  'weight': 2, 'fluxo': 0}),
+                           (1, 5, {'capacity': 10, 'weight': 7, 'fluxo': 0}),
+                           (2, 3, {'capacity': 5,  'weight': 3, 'fluxo': 0}),
+                           (4, 2, {'capacity': 8,  'weight': 6, 'fluxo': 0}),
+                           (4, 3, {'capacity': 9,  'weight': 4, 'fluxo': 0}),
+                           (5, 4, {'capacity': 7,  'weight': 5, 'fluxo': 0})])
 
     DG_copy = nx.DiGraph(DG)
     start = time()
     solve(DG)
     elapsed = (time() - start)
-    print 'Tempo execução: %f' % (elapsed)
     # Imprima a solução
     edges = DG.edges(data=True)
     objective = 0
     for edge in edges:
         if edge[2]['fluxo'] > 0:
             objective += DG_copy[edge[0]][edge[1]]['weight']
-        # print '(%d, %d) -> Fluxo: %f' % (edge[0], edge[1], edge[2]['weight'])
+        print '(%d, %d) -> Fluxo: %f' % (edge[0], edge[1], edge[2]['weight'])
+    print 'Tempo execução: %f' % (elapsed)
     print 'Objective: %d' % (objective)
