@@ -84,6 +84,9 @@ def solve(DG):
                                          target=no_de_demanda)
         limite_superior = limite_superior_caminho(DG, dijkstra_path)
         valor_fluxo = min(limite_superior, DG.node[no_de_demanda]['demand'])
+        if valor_fluxo == 0:
+            raise Exception('Instância inviável')
+
         atualize1(DG, valor_fluxo, dijkstra_path)
 
         atualize2(DG, dijkstra_path)
