@@ -88,3 +88,9 @@ Gerando resultado:
 
 Que para esse caso, corresponde a solução ótima.
 
+Caso deseje rodar com uma instância já existente, que deve ser  uma
+serialização de um grafo  direcionado do pacote `networkx`, basta especificar o
+caminho como no comando abaixo:
+
+    $ python solver.py -f instancia
+
