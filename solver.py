@@ -137,6 +137,8 @@ if __name__ == '__main__':
     for edge in edges:
         if edge[2]['fluxo'] > 0:
             objective += DG_copy[edge[0]][edge[1]]['weight']
-        print '(%d, %d) -> Fluxo: %f' % (edge[0], edge[1], edge[2]['weight'])
+        print '(%d, %d) -> Fluxo: %d' % (edge[0],
+                                         edge[1],
+                                         int(edge[2]['fluxo']))
     print 'Tempo execução: %f' % (elapsed)
     print 'Objective: %d' % (objective)

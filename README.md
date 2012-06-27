@@ -20,49 +20,40 @@ caminho);
 
 ## Gerador
 
-O descritor lê o arquivo `input` na pasta corrente. Este arquivo deve possuir
-uma sequência de descritores de instâncias, conforme a seguir:
+O gerador constroi grafos aleatórios com base nos seguintes parâmetros:
 
-* A primeira linha contém o número de descritores `N`
-* Os descritores são apresentados em sequência com as seguintes linhas:
-    1. Número de instâncias para esse descritor `I[i], i = 0...N-1`
-    2. Número de nós de demanda
-    3. Número de nós de transbordo
-    4. Número de arestas
-    5. Valor máximo para as demandas
-    6. Valor máximo para as capacidades dos arcos
-    7. Valor máximo para os custos dos arcos
+* Número de nós de demanda
+* Número de nós de transbordo
+* Densidade
+* Valor máximo para as demandas
+* Valor máximo para as capacidades dos arcos
+* Valor máximo para os custos dos arcos
 
-Para cada instância são gerados dois arquivos `instanciaXY` e `py_instanciaXY`,
-em que `X` é o valor do descritor de `0` a `N-1` e `Y`   é a ordem da instância
-do descrito de `0` a `I[X]-1`. O primeiro arquivo serve de entrada para o `glpk`
-e o segundo é a representação serializada do grafo do tipo `networkx.Digraph`
-que pode ser utilizada no `solver.py` como demonstrado abaixo:
+E deve ser executado da seguinte forma:
+
+    $ python gerador.py [-h] n_dem n_tr dens u_dem u_cap u_cost
+
+onde:
+
+    positional arguments:
+      n_dem       Número de nós de demanda
+      n_tr        Número de nós de transbordo
+      dens        Densidade do grafo
+      u_dem       Valor máximo para demandas
+      u_cap       Valor máximo para capacidade nos arcos
+      u_cost      Valor máximo para custo nos arcos
+
+    optional arguments:
+      -h, --help  show this help message and exit
+
+Para cada instância são gerados dois arquivos, com o mesmo nome mas presentes em diferentes pastas. O formato do nome, `sXXdXXuXX`, representa as propriedades do grafo gerado, onde `sXX` representa o tamanho do grafo, `dXX` a densidade e `uXX` o valor máximo para as demandas. O primeiro arquivo serve de entrada para o `glpk` e está presente na pasta `instancias/glpk/`; o segundo está presente na pasta `instancias/py/` e é a representação serializada do grafo do tipo `networkx.Digraph` que pode ser utilizada no `solver.py` como demonstrado abaixo:
 
 ```python
 from cPickle import load
 from solver import solve
-DG = load(open('instancias/2012-06-23-12-35-04/py_instancia42', 'r'))
+DG = load(open('instancias/py/s10d50u10', 'r'))
 solve(DG)
 ```
-
-Cada lote de instância gerado fica guardado dentro da pasta `instancias/`, sendo
-que cada lote tem sua própria pasta no formato `%Y-%m-%d-%H-%M-%S` que
-representa o momento em que o lote foi gerado.
-
-### Instâncias **originais** geradas
-
-Foram geradas 18 instâncias:
-
-* pequenas: 5 nós
-    * 3 não densas: 8 arestas
-    * 3 densas: 13 arestas
-* médias: 10 nós
-    * 3 não densas: 40 arestas
-    * 3 densas: 60 arestas
-* grandes: 15 nós
-    * 3 não densas: 70 arestas
-    * 3 densas: 150 arestas
 
 
 ## Implementação

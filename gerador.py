@@ -144,14 +144,14 @@ if __name__ == '__main__':
 
     glpk_dir = 'instancias/glpk/'
     if not path.exists(glpk_dir):
-                makedirs(glpk_dir)
+        makedirs(glpk_dir)
     glpk_out = open(glpk_dir + file_name, 'w')
     glpk_out.write(output)
     glpk_out.close()
 
     py_dir = 'instancias/py/'
     if not path.exists(py_dir):
-                makedirs(py_dir)
+        makedirs(py_dir)
     py_out = open('instancias/py/py' + file_name, 'w')
     dump(graph, py_out)
     py_out.close()
