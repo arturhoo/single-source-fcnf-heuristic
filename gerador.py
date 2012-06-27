@@ -152,6 +152,6 @@ if __name__ == '__main__':
     py_dir = 'instancias/py/'
     if not path.exists(py_dir):
         makedirs(py_dir)
-    py_out = open('instancias/py/py' + file_name, 'w')
+    py_out = open('instancias/py/' + file_name, 'w')
     dump(graph, py_out)
     py_out.close()
