@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
+
 import networkx as nx
 import argparse as ap
+import random as rand
 import sys
 from time import time
 from cPickle import load
-from simple_paths import all_simple_paths
 
 
 def carregue_nos_de_demanda(DG):
@@ -73,41 +74,50 @@ def atualize4(DG, valor_fluxo, lista):
             break
 
 
-def ordena_nos_demanda_demanda(DG, no_de_oferta, lista_nos_de_demanda):
-    lista_num_caminhos = []
-    for no in lista_nos_de_demanda:
-        lista_num_caminhos.append(DG.node[no]['demand'])
-    return [x for (y, x) in sorted(zip(lista_num_caminhos, lista_nos_de_demanda))]
-
-
 def solve(DG):
-    no_de_oferta = None
-    lista_nos_de_demanda = []
-    no_de_oferta = carregue_no_de_oferta(DG)
-    lista_nos_de_demanda = carregue_nos_de_demanda(DG)
-    while len(lista_nos_de_demanda) > 0:
-        lista_nos_de_demanda = ordena_nos_demanda_demanda(DG,
-                                                          no_de_oferta,
-                                                          lista_nos_de_demanda)
-        lista_nos_de_demanda.reverse()
-        no_de_demanda = lista_nos_de_demanda[0]
-        dijkstra_path = nx.dijkstra_path(DG,
-                                         source=no_de_oferta,
-                                         target=no_de_demanda)
-        limite_superior = limite_superior_caminho(DG, dijkstra_path)
-        valor_fluxo = min(limite_superior, DG.node[no_de_demanda]['demand'])
-        if valor_fluxo == 0:
-            raise Exception('Instância inviável')
+    attempts = 0
+    max_iter = 100
+    achou_solucao = False
 
-        atualize1(DG, valor_fluxo, dijkstra_path)
+    while attempts < max_iter and not achou_solucao:
+        # print attempts
+        grafo = nx.DiGraph(DG)
+        no_de_oferta = None
+        lista_nos_de_demanda = []
+        no_de_oferta = carregue_no_de_oferta(grafo)
+        lista_nos_de_demanda = carregue_nos_de_demanda(grafo)
+        invalid = False
+        while len(lista_nos_de_demanda) > 0 and (not invalid):
+            curr_demand = rand.randrange(0, len(lista_nos_de_demanda))
+            # print "demand = " + str(lista_nos_de_demanda[curr_demand])
+            no_de_demanda = lista_nos_de_demanda[curr_demand]
+            dijkstra_path = nx.dijkstra_path(grafo,
+                                             source=no_de_oferta,
+                                             target=no_de_demanda)
+            limite_superior = limite_superior_caminho(grafo, dijkstra_path)
+            valor_fluxo = min(limite_superior, \
+                              grafo.node[no_de_demanda]['demand'])
+            if valor_fluxo == 0:
+                invalid = True
+            else:
+                atualize1(grafo, valor_fluxo, dijkstra_path)
 
-        atualize2(DG, dijkstra_path)
+                atualize2(grafo, dijkstra_path)
 
-        atualize3(DG, valor_fluxo,
-                  dijkstra_path, no_de_oferta,
-                  lista_nos_de_demanda)
+                atualize3(grafo, valor_fluxo,
+                          dijkstra_path, no_de_oferta,
+                          lista_nos_de_demanda)
 
-        atualize4(DG, valor_fluxo, dijkstra_path)
+                atualize4(grafo, valor_fluxo, dijkstra_path)
+        if not invalid:
+            # print 'found solution'
+            achou_solucao = True
+            return grafo
+        else:
+            attempts += 1
+
+    if not achou_solucao:
+        raise Exception('Instância inviável')
 
 
 if __name__ == '__main__':
@@ -141,7 +151,7 @@ if __name__ == '__main__':
 
     DG_copy = nx.DiGraph(DG)
     start = time()
-    solve(DG)
+    DG = solve(DG)
     elapsed = (time() - start)
     # Imprima a solução
     edges = DG.edges(data=True)

@@ -214,7 +214,7 @@ Para resolver o \textit{Single Source Fixed Charge Network Flow Problem} foi des
 
 Partindo do pressuposto de que temos uma instância viável, as demandas possuem um ou mais caminhos -- que respeitem os limites da capacidade dos arcos -- para o nó de oferta, possibilitando que todas sejam atendidas. Como a resolução do problema visa minimizar o custo total para o atendimento das demandas, isto é, busca minimizar a função objetivo, devemos selecionar o caminho de menor custo entre cada um dos nós de demanda e o nó de oferta. Porém, como os arcos possuem limitações de fluxo, o caminho mínimo encontrado pode não suprir completamente a demanda, de forma que deve-se encontrar outro caminho de custo mínimo para suprí-la.
 
-Considerando que todas as demandas devem ser supridas, a heurística desenvolvida consiste em um método iterativo que a cada iteração seleciona o nó de demanda com a maior demanda associada e calcula o caminho mínimo entre ele e o nó de oferta, utilizando o algoritmo de Dijkstra\cite{dijk}, e passa por tal caminho um fluxo capaz de suprir a demanda totalmente ou parcialmente. O atendimento parcial da demanda ocorre quando o caminho mínimo encontrado possui um limite de fluxo inferior ao valor da demanda, fazendo com que o algoritmo tente encontrar outro(s) caminho(s) de custo mínimo para suprí-la totalmente.
+Considerando que todas as demandas devem ser supridas, a heurística desenvolvida consiste em um método iterativo que a cada iteração seleciona um nó aleatório de demanda com demanda não suprida e calcula o caminho mínimo entre ele e o nó de oferta, utilizando o algoritmo de Dijkstra\cite{dijk}, e passa por tal caminho um fluxo capaz de suprir a demanda totalmente ou parcialmente. O atendimento parcial da demanda ocorre quando o caminho mínimo encontrado possui um limite de fluxo inferior ao valor da demanda, fazendo com que o algoritmo tente encontrar outro(s) caminho(s) de custo mínimo para suprí-la totalmente.
 
 Uma vez que um caminho mínimo é obtido, os custos dos arcos que o compõem são contabilizados uma única vez, isto é, caso algum dos arcos faça parte de outros caminhos a passagem de qualquer fluxo adicional não implicará em aumento no custo, já que os custos $c_{ij}$ independem da quantidade de fluxo nos arcos. Dessa forma, paga-se um valor fixo quando um arco é incluído pela primeira vez e, depois de incluído, o fluxo que o percorre não irá provocar alterações no custo já contabilizado anteriormente, possibilitando a relação $c'_{ij} = 0$.
 
@@ -222,40 +222,44 @@ Entretanto, no caso em que em um arco trafega um fluxo máximo, este passa a ter 
 
 Em relação aos nós de demanda, caso o primeiro caminho mínimo calculado não seja capaz de atender completamente a demanda, ela deverá ser atualizada, isto é, a nova demanda passa a ser $b'_i = b_i - x_{ij}$ e o nó deverá ter um ou mais novos caminhos mínimos calculados até que a demanda seja completamente suprida, ou seja, $b'_i = 0$.
 
+Em algumas ocasiões raras, durante esse processo iterativo, a heurística pode não achar um caminho por onde passar um fluxo não nulo. Nestes casos, a heurística é reiniciada. A aletoriedade da escolha do nó de demanda faz com que novas soluções sejam exploradas.
+
 A seguir temos o pseudoalgoritmo para a heurística descrita:
 
 \begin{algorithm}[H]
 \begin{footnotesize}
-	Custo\_total $\leftarrow 0$\;
-	\ForEach{arco $\in$ A}{
-		fluxo$_{arco}$ = 0\;
-	}
-
-	\While{existem nós de demanda com a demanda não suprida}{
-		Seleciona nó $i$ com maior demanda positiva\;
-		Obtém caminho mínimo do nó $i$ ao nó de oferta\;
-		limite\_superior $~\leftarrow~$ capacidade mínima dentre os arcos do caminho\;
-
-		\eIf{demanda$_i$ $<$ limite\_superior}{
-			Supre a demanda\;
-			demanda$_i$ $~\leftarrow~0$\;
-			fluxo $~\leftarrow~$ demanda\;
-		}{
-			Demanda parcialmente atentida\;
-			demanda$_i$ $~\leftarrow~$ demanda$_i$ $-$ limite\_superior\;
-			fluxo $~\leftarrow~$ limite\_superior\;
+	\Repeat{solução encontrada | tentou mais de 100 vezes}{
+		Custo\_total $\leftarrow 0$\;
+		\ForEach{arco $\in$ A}{
+			fluxo$_{arco}$ = 0\;
 		}
 
-		Custo\_total $~\leftarrow~$ Custo\_total $+$ comprimento do caminho\;
+		\While{existem nós de demanda com a demanda não suprida}{
+			Seleciona aleatoriamente um nó $i$ com demanda positiva\;
+			Obtém caminho mínimo do nó $i$ ao nó de oferta\;
+			limite\_superior $~\leftarrow~$ capacidade mínima dentre os arcos do caminho\;
 
-		\ForEach{arco do caminho}{
-			limite\_superior$_{arco}$ $~\leftarrow~$ limite\_superior$_{arco}$ $-$ fluxo\;
-			\eIf{limite\_superior$_{arco}$ $=$ 0}{
-				Fluxo máximo no arco, o elimina\;
-				custo$_{arco}$ $~\leftarrow~ infinito$\;
+			\eIf{demanda$_i$ $<$ limite\_superior}{
+				Supre a demanda\;
+				demanda$_i$ $~\leftarrow~0$\;
+				fluxo $~\leftarrow~$ demanda\;
 			}{
-				Arco pode ser utilizado em outro caminho, custo já pago\;
-				custo$_{arco}$ $~\leftarrow~ 0$\;
+				Demanda parcialmente atentida\;
+				demanda$_i$ $~\leftarrow~$ demanda$_i$ $-$ limite\_superior\;
+				fluxo $~\leftarrow~$ limite\_superior\;
+			}
+
+			Custo\_total $~\leftarrow~$ Custo\_total $+$ comprimento do caminho\;
+
+			\ForEach{arco do caminho}{
+				limite\_superior$_{arco}$ $~\leftarrow~$ limite\_superior$_{arco}$ $-$ fluxo\;
+				\eIf{limite\_superior$_{arco}$ $=$ 0}{
+					Fluxo máximo no arco, o elimina\;
+					custo$_{arco}$ $~\leftarrow~ infinito$\;
+				}{
+					Arco pode ser utilizado em outro caminho, custo já pago\;
+					custo$_{arco}$ $~\leftarrow~ 0$\;
+				}
 			}
 		}
 	}
@@ -302,7 +306,7 @@ Foram também geradas instâncias adicionais com valores máximo para as demandas d
 
 Com o intuito de se obter testes mais consistentes, os experimentos foram executados em ambiente virtualizado, com capacidade de processamento e memória primário reduzidas, 30\% da capacidade da máquina hospedeira e 384MiB, respectivamente. O sistema operacional do ambiente virtualizado era Ubuntu 12.04 64 bits e os softwares utilizados foram Python versão 2.7.3, GLPSOL: GLPK LP/MIP Solver versão 4.47 e GCC versão 4.6.3. A máquina hospedeira possuía sistema operacional Mac OS X 10.7.4, processador \textit{quad-core} de 2.3GHz e memória primária com capacidade de 8GiB.
 
-Para cada instância utilizada, foram aferidos o tempo de execução e o valor da função objetivo tanto no \textit{GLPSOL} quanto na implementação da heurística. É importante ressaltar que foram realizadas três execuções e aferido o valor médio para o tempo de execução.
+Para cada instância utilizada, foram aferidos o tempo de execução e o valor da função objetivo tanto no \textit{GLPSOL} quanto na implementação da heurística. É importante ressaltar que foram realizadas três execuções e aferidos os valores médios, tanto para o tempo de execução, quanto para o valor da função objetivo (no caso dos procedimentos da implementação da heurística).
 
 \subsection{Resultados}
 
@@ -393,7 +397,7 @@ O \textit{Single Source Fixed Charge Network Flow Problem} tem como base um graf
 
 A primeira estratégia corresponde à utilização de um solver, o \textit{GLPSOL} do pacote \textit{GLPK}, que fornece resultados exatos para o problema. A segunda estratégia envolveu a elaboração de um heurística baseada no caminho mínimo entre cada nó demanda e o nó de oferta.
 
-A heurística desenvolvida corresponde a um método iterativo que a cada iteração calcula o caminho mínimo entre o nó de oferta e o nós de demanda com maior demanda associada que ainda não tenha sido completamente suprida e passar um fluxo por este caminho. Tal fluxo pode corresponder à capacidade máxima de passagem do caminho ou pode ser inferior a ela. Em ambos os casos a demanda pode ou não ser completamente atendida. Caso a demanda de um dado nó não seja suprida, deve-se calcular outros caminhos mínimos até que ela seja totalmente atendida.
+A heurística desenvolvida corresponde a um método iterativo que a cada iteração calcula o caminho mínimo entre o nó de oferta e um nó aleatório de demanda com demanda associada que ainda não tenha sido completamente suprida e passar um fluxo por este caminho. Tal fluxo pode corresponder à capacidade máxima de passagem do caminho ou pode ser inferior a ela. Em ambos os casos a demanda pode ou não ser completamente atendida. Caso a demanda de um dado nó não seja suprida, deve-se calcular outros caminhos mínimos até que ela seja totalmente atendida.
 
 Como a heurística favorece a escolha de caminhos de menor custo, nem sempre seleciona o melhor caminho globalmente, uma vez que um caminho de maior custo poderia permitir uma maior passagem de fluxo e possivelmente diminuir o custo de atendimento da demanda de outros nós. Dessa forma, a heurística não é exata, mas fornece resultados próximos da solução ótima do problema, como comprovado através de experimentos.
 
