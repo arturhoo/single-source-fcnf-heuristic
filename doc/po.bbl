@@ -1,0 +1,14 @@
+\begin{thebibliography}{}
+
+\bibitem[Dijkstra 1959]{dijk}
+Dijkstra, E.~W. (1959).
+\newblock A note on two problems in connexion with graphs.
+\newblock {\em Numerische Mathematik}, 1:269--271.
+\newblock 10.1007/BF01386390.
+
+\bibitem[Wolsey 1998]{wolsey1998integer}
+Wolsey, L.~A. (1998).
+\newblock {\em {Integer programming}}.
+\newblock Wiley-Interscience, New York, NY, USA.
+
+\end{thebibliography}

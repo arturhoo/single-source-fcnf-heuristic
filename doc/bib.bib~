@@ -1,0 +1,16 @@
+@MISC{dijk,
+ AUTHOR = "Wikipedia",
+ TITLE = "Dijkstra's Algorithm",
+ MONTH = "junho",
+ YEAR = "2012",
+ NOTE = "\textit{http://en.wikipedia.org/wiki/Dijkstra's\_algorithm}"
+}
+
+@book{wolsey1998integer,
+  title={Integer Programming},
+  author={Wolsey, L.A.},
+  isbn={9780471283669},
+  lccn={98007296},
+  year={1998},
+  publisher={Wiley}
+}

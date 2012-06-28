@@ -1,0 +1,357 @@
+\documentclass[12pt]{article}
+\usepackage{sbc-template}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{subfigure}
+\usepackage{times,amsmath,epsfig}
+\usepackage{graphicx,url}
+\usepackage{multirow}
+ \makeatletter
+ \newif\if@restonecol
+ \makeatother
+ \let\algorithm\relax
+ \let\endalgorithm\relax
+\usepackage{listings}
+\usepackage{float}
+\usepackage[lined,algonl,ruled]{algorithm2e}
+\usepackage{multirow}
+\usepackage[brazil]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage[pst-pdf=md5]{gastex}
+
+\lstset{ %
+language=Gnuplot,                  % choose the language of the code
+basicstyle=\footnotesize,       % the size of the fonts that are used for the code
+numbers=left,                   % where to put the line-numbers
+numberstyle=\footnotesize,      % the size of the fonts that are used for the line-numbers
+stepnumber=2,                   % the step between two line-numbers. If it's 1 each line will be numbered
+numbersep=5pt,                  % how far the line-numbers are from the code
+backgroundcolor=\color{white},  % choose the background color. You must add \usepackage{color}
+showspaces=false,               % show spaces adding particular underscores
+showstringspaces=false,         % underline spaces within strings
+showtabs=false,                 % show tabs within strings adding particular underscores
+frame=single,	                % adds a frame around the code
+tabsize=2,	                    % sets default tabsize to 2 spaces
+captionpos=b,                   % sets the caption-position to bottom
+breaklines=true,                % sets automatic line breaking
+breakatwhitespace=false,        % sets if automatic breaks should only happen at whitespace
+title=\lstname,                 % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+
+\sloppy
+
+\title{TRABALHO PRÁTICO: \\Single Source Fixed Charge Network Flow Problem}
+
+\author{Artur Rodrigues, Luciana Maroun, Thanis Paiva}
+
+\address{Departamento de Ciência da Computação \\ Universidade Federal de Minas Gerais (UFMG)
+\email{artur@dcc.ufmg.br, lubm@dcc.ufmg.br, thpaiva@dcc.ufmg.br}
+}
+
+\begin{document}
+
+\maketitle
+
+\section{INTRODUÇÃO}
+
+O \textit{Single Source Fixed Charge Network Flow Problem} é representado por meio de um grafo contendo apenas um nó de oferta e os demais nós de demanda ou transbordo. Esses nós são conectados através de arcos com capacidades limitadas superiormente e custos fixos não negativos, contabilizados sempre que existir um fluxo em uma aresta, independentemente da intensidade.
+
+Seja um grafo direcionado \textit{G = (N,~A)} com vetor de demandas $b$, de custos $c$ e de limites superiores nos arcos $u$, todos com valores inteiros, desejamos selecionar um conjunto de arcos $A' \subseteq A$ e atribuir fluxos positivos a esses, de modo que as demandas sejam atendidas, minimizando-se o custo da passagem de fluxo nos arcos e respeitando os limites de capacidade dos mesmos.
+
+Este trabalho prático utiliza diferentes abordagens a fim de resolver o problema descrito. A primeira abordagem consiste na resolução através do solver \textit{GLPSOL}, do pacote \textit{GLPK} (\textit{GNU Linear Programming Kit}), baseado no método \textit{SIMPLEX} para a resolução de problemas de programação linear, e pode ser vista na seção \ref{glpk}. A segunda abordagem faz uso de uma heurística que explora as características do problema e foi desenvolvida pela equipe. Detalhes adicionais e a implementação são apresentados na seção \ref{heur}. A partir da geração de instâncias e da efetivação de uma sequência de testes, os métodos são comparados na seção \ref{analise}.
+
+\subsection{Formulação Matemática}
+
+Seja o grafo direcionado \textit{G = (N,~A)}, mencionado anteriormente, com vetores de demandas $b$, capacidades $u$ e custos $c$, desejamos obter um grafo \textit{G' = (N,~A')} como definido anteriormente. Porém, antes devemos fazer algumas considerações. 
+
+Os nós do grafo \textit{G}, \textit{N}, podem ser divididos entre um nó de oferta, nós de demandas e nós de transbordo. Considerando que $n = |N|$, temos apenas um nó de oferta que será o nó \textit{f} e os demais $N \setminus \{f\}$ nós serão de demanda ou transbordo.
+
+O nó fonte possui $b_f < 0$, isto é, corresponde ao nó de onde o fluxo sai em direção aos nós de demanda ou transbordo. Assim, $\forall~~ i \in N \setminus \{f\}$, $b_i~>~0$~(demanda) ou $b_i~=~0$~(transbordo). Será assumido que $b_f~=~-\sum_{i \in N \setminus \{f\}} b_i$, isto é, o somatório da oferta corresponde ao negativo do somatório de todas as demandas do grafo e que $\forall~~ (i,j) \in A, ~~ c_{ij}~\ge~0$.
+
+Podemos definir duas variáveis para o problema $x_{ij}$ e $y_{ij}$ tais que:
+
+$x_{ij}$ corresponde ao fluxo no arco $(i,j) \in A$ e
+
+\[
+y_{ij} =
+\left\{
+  \begin{array}{l l}
+    1 & \quad \text{se $x_{ij} > 0$}\\
+    0 & \quad \text{se $x_{ij} = 0$}\\
+  \end{array} \right.
+\]
+
+Dessa forma obtemos a seguinte formulação:
+
+\begin{center}
+min~$\sum_{(i,j) \in A} c_{ij}y_{ij}$
+
+$\sum_{j \in V^-(i)} x_{ij}~-~\sum_{j \in V^+(i)} x_{ij}~=~b_i$, $i~\in~N$
+
+$0 ~\leq~ x_{ij} ~\leq~ u_{ij}y_{ij}~$, $(i,j)~\in~A$
+
+$y~\in~\{0,1\}$
+\end{center}
+
+A seguir temos um exemplo de um grafo para o \textit{Single Source Fixed Charge Network Flow Problem}. O grafo contém um nó de oferta, com ofeta $b_1 = -20$, nós de demanda com demandas $b_2 = 5$, $b_3 = 7$ e $b_4 = 8$, além de um nó de transbordo com $b_5 = 0$. Os arcos possuem capacidades $c_{ij}$ e limites superiores à passagem de fluxo $u_{ij}$, representados a seguir como $[c_{ij},u_{ij}]$.
+
+\begin{figure}[h!]
+  \begin{center}
+	\unitlength=2pt
+	\begin{gpicture}
+	\gasset{Nw=25,Nh=12,Nmr=5,curvedepth=0}
+	\thinlines
+	\node(1)(0,30){$b_1 = -20$}
+	\node(2)(70,60){$b_2 = 5$}
+	\node(3)(140,30){$b_3 = 7$}
+	\node(4)(70,30){$b_4 = 8$}
+	\node(5)(70,0){$b_5 = 0$}
+	\drawedge(1,2){$[8, 10]$}
+	\drawedge(1,4){$[2, 3]$}
+	\drawedge(1,5){$[7, 10]$}
+	\drawedge(2,3){$[3, 5]$}
+	\drawedge(4,2){$[8, 10]$}
+	\drawedge(4,3){$[4, 9]$}
+	\drawedge(5,4){$[5, 7]$}
+	\end{gpicture}
+  \end{center}
+  \caption{Exemplo de instância para o problema.}
+  \label{ex}
+\end{figure}
+
+
+\section{RESOLUÇÃO DO PROBLEMA}
+
+\subsection{Solver GLPK}\label{glpk}
+O problema pode ser resolvido pelo GLPK por meio de um modelo descrito pela linguagem GMPL (\textit{GNU Mathematical Programming Language}) e de uma instância que define os parâmetros do problema. O modelo para o problema em questão é apresentado abaixo.
+
+\mbox{}
+
+\begin{lstlisting}
+/* Conjuntos */
+set Nodes;
+set Arcs within {Nodes, Nodes};
+
+/* Matrizes e vetores */
+param b {Nodes}; /* vetor de demandas */
+param c {Arcs}; /* matriz de custos fixos das arestas */
+param u {Arcs}; /* matriz de limites superiores das arestas */
+
+/* Variáveis de decisão */
+var x {Arcs}, integer; /* fluxo em cada aresta */
+var y {Arcs}, binary; /* variável para indicar
+                         se fluxo existe em uma aresta */
+
+/* Função objetivo */
+minimize objective: sum {(i,j) in Arcs} c[i,j] * y[i,j];
+/* minimizar a soma de custos fixos */
+
+/* Restrições */
+s.t. flow_balance {i in Nodes}:
+	sum {j in Nodes: (j,i) in Arcs} x[j,i] -
+	sum {j in Nodes: (i,j) in Arcs} x[i,j] = b[i];
+s.t. capacity {(i,j) in Arcs}:
+	x[i,j] <= u[i,j] * y[i,j];
+s.t. domain {(i, j) in Arcs}:
+	x[i,j] >= 0;
+
+solve; display x;
+
+end;
+\end{lstlisting}
+
+A descrição em GMPL da instância para o exemplo apresentado na figura \ref{ex} está representada a seguir,
+
+\mbox{}
+
+\begin{lstlisting}
+/* Definição do grafo */
+set Nodes := 1 2 3 4 5 ;
+set Arcs  := (1,2) (1,4) (1,5) (2,3) (4,2) (4,3) (5,4) ;
+
+/* Vetor de demandas dos nós */
+param b :=
+1     -20
+2     5
+3     7
+4     8
+5     0;
+
+/* Vetores de limite superior e de custos,
+   respectivamente, das arestas */
+param:   u    c :=
+1,2      10   1
+1,4      3    2
+1,5      10   7
+2,3      5    3
+4,2      8    6
+4,3      9    4
+5,4      7    5;
+
+end;
+\end{lstlisting}
+
+Para que o GLPK resolva esta instância, basta executar o seguinte comando na linha de comando, em que \textit{modelo.mod} é o arquivo do modelo e \textit{instancia1.dat} é o arquivo da instância:
+
+\footnotesize
+\begin{verbatim}
+glpsol --model modelo.mod --data instancia1.dat
+\end{verbatim}
+\normalsize
+
+Com isso, o solver reporta sua resolução, informando que a solução para o problema consiste nos seguintes fluxos:
+
+\[x_{12} = 10, x_{14} = 3, x_{15} = 7, x_{23} = 5, x_{42} = 0, x_{43} = 2, x_{54} = 7\]
+
+Conferindo à função objetivo o valor mínimo de $22$.
+
+\subsection{Heurística do Caminho Mínimo}\label{heur}
+
+Para resolver o \textit{Single Source Fixed Charge Network Flow Problem} foi desenvolvida uma heurística que utiliza como base o caminho mínimo entre os nós de demanda e o nó de oferta. Dessa forma, é possível determinar os caminhos de menor custo para suprir todas as demandas, considerando os limites de capacidades dos arcos que compõem tais caminhos.
+
+Partindo do pressuposto de que temos uma instância viável, as demandas possuem um ou mais caminhos -- que respeitem os limites da capacidade dos arcos -- para o nó de oferta, possibilitando que todas sejam atendidas. Como a resolução do problema visa minimizar o custo total para o atendimento das demandas, isto é, busca minimizar a função objetivo, devemos selecionar o caminho de menor custo entre cada um dos nós de demanda e o nó de oferta. Porém, como os arcos possuem limitações de fluxo, o caminho mínimo encontrado pode não suprir completamente a demanda, de forma que deve-se encontrar outro caminho de custo mínimo para suprí-la.
+
+Considerando que todas as demandas devem ser supridas, a heurística desenvolvida consiste em um método iterativo que a cada iteração seleciona um nó de demanda e calcula o caminho mínimo entre ele e o nó de oferta, utilizando o algortimo de Dijkstra, e passa por tal caminho um fluxo capaz de suprir a demanda totalmente ou parcialmente. O atendimento parcial da demanda ocorre quando o caminho mínimo encontrado possui um limite de fluxo inferior ao valor da demanda, fazendo com que o algoritmo tente encontrar outro(s) caminho(s) de custo mínimo para suprí-la totalmente.
+
+Uma vez que um caminho mínimo é obtido, os custos dos arcos que o compõem são contabilizados uma única vez, isto é, caso algum dos arcos faça parte de outros caminhos a passagem de qualquer fluxo adicional não implicará em aumento no custo, já que os custos $c_{ij}$ independem da quantidade de fluxo nos arcos. Dessa forma, paga-se um valor fixo quando um arco é incluído pela primeira vez e, depois de incluído, o fluxo que o percorre não irá provocar alterações no custo já contabilizado anteriormente, possibilitando a relação $c'_{ij} = 0$.
+
+Entretanto, no caso em que em um arco trafega um fluxo máximo, este passa a ter um custo infinito, tornando-o um caminho máximo. Quando, em alguma iteração, ele for obtido como caminho mínimo, corresponde a uma situação de inviabilidade, pois não existem caminhos suficiente para suprir determinado nó de demanda. Quando fluxo imposto não é máximo, isto é, $x_{ij} < u_{ij}$ o limite superior do arco é atualizado e seu novo limite corresponde a $u'_{ij} = u_{ij} - x_{ij}$, possibilitando que o mesmo possa ser utilizado em algum outro caminho.
+
+Em relação aos nós de demanda, caso o primeiro caminho mínimo calculado não seja capaz de atender completamente a demanda, ela deverá ser atualizada, isto é, a nova demanda passa a ser $b'_i = b_i - x_{ij}$ e o nó deverá ter um ou mais novos caminhos mínimos calculados até que a demanda seja completamente suprida, ou seja, $b'_i = 0$.
+
+A seguir temos o pseudoalgoritmo para a heurística descrita:
+
+\begin{algorithm}[H]
+\begin{footnotesize}
+	Custo\_total $\leftarrow 0$\;
+	\ForEach{arco $\in$ A}{
+		fluxo$_{arco}$ = 0\;
+	}
+
+	\While{existem nós de demanda com a demanda não suprida}{
+		Seleciona um nó $i$ com demanda positiva\;
+		Obtém caminho mínimo do nó $i$ ao nó de oferta\;
+		limite\_superior $~\leftarrow~$ capacidade mínima dentre os arcos do caminho\;
+
+		\eIf{demanda$_i$ $<$ limite\_superior}{
+			Supre a demanda\;
+			demanda$_i$ $~\leftarrow~0$\;
+			fluxo $~\leftarrow~$ demanda\;
+		}{
+			Demanda parcialmente atentida\;
+			demanda$_i$ $~\leftarrow~$ demanda$_i$ $-$ limite\_superior\;
+			fluxo $~\leftarrow~$ limite\_superior\;
+		}
+
+		Custo\_total $~\leftarrow~$ Custo\_total $+$ comprimento do caminho\;
+
+		\ForEach{arco do caminho}{
+			limite\_superior$_{arco}$ $~\leftarrow~$ limite\_superior$_{arco}$ $-$ fluxo\;
+			\eIf{limite\_superior$_{arco}$ $=$ 0}{
+				Fluxo máximo no arco, o elimina\;
+				custo$_{arco}$ $~\leftarrow~ infinito$\;
+			}{
+				Arco pode ser utilizado em outro caminho, custo já pago\;
+				custo$_{arco}$ $~\leftarrow~ 0$\;
+			}
+		}
+	}
+\caption{Heurística do Caminho Mínimo(grafo G)}
+\end{footnotesize}
+\end{algorithm}
+
+Considerando demandas, custos e capacidades inteiras, este algoritmo computa o caminho mínimo, no máximo, $k$ vezes para cada nó de demanda, em que $k$ é a demanda máxima de um nó. Isso se deve ao fato de que a demanda descresce de, pelo menos, uma unidade a cada iteração. Considerando a utilização do algoritmo de Dijkstra\cite{dijk} para computar os caminhos mínimos, uma vez que os custos são não negativos, têm-se complexidade assintótica temporal de $ k \cdot O(n^2)$. Como o número de nós de demanda está relacionado linearmente com o número total de nós, tem-se complexidade $O(kn^3)$ para a heurística implementada.
+
+O problema apresentado visa à escolha de caminhos de baixo custo e à escolha de poucos caminhos, buscando minimizar o custo que é fixo. Os resultados gerados pela heurística dão preferência ao parâmetro custo dos caminhos em relação ao parâmetro capacidade dos arcos, que potencialmente conferem um menor número de caminhos.
+
+A priorização de caminhos de menor custo não garante uma solução ótima, pois outros caminhos que não sejam mínimos podem comportar um fluxo maior, que no caso da heurística utilizaria mais de um caminho. A escolha do primeiro caminho mínimo faz com que o mesmo seja preferível a todos os outros, pois os custos de suas arestas já foram pagos, mas ele pode não pertencer à solução ótima. Assim, a heurística apresentada segue uma direção de aproximação da solução ótima, via caminhos mínimos, porém sem garantia da otimalidade.
+
+\section{ANÁLISE DOS RESULTADOS}\label{analise}
+
+\subsection{Instâncias}
+As instâncias foram obtidas por meio de um gerador que recebia como entrada descritores com os seguintes parâmetros:
+
+\begin{itemize}
+\item Número de instâncias
+\item Número de nós de demanda
+\item Número de nós de transbordo
+\end{itemize}
+
+As capacidades e os custos dos arcos e as demandas dos nós de demanda têm valores máximos definidos como constantes no gerador. O número de nós, por sua vez, é um valor aleatório entre $\frac{n(n-1)}{4}$ e $n(n-1)$, com densidades variando de $25\%$ a $100\%$, a fim de que os grafos não sejam muito esparsos e reduzam a probabilidade de viabilidade.
+
+A geração de instâcias viáveis não é garantida. O equilíbrio de oferta e de demanda sempre é satisfeito, mas podem não existir caminhos capacitados o suficiente entre o nó de oferta e nós de demanda.
+
+As instâncias escolhidas para a análise dos resultados tiveram foram divididas em grafos com $10, 20$ e $30$ nós. Os demais parâmetros foram gerados aleatoriamente, respeitando-se os limites superiores impostos pela definição de constantes no programa ou pela própria relação com outros parâmetros, como no caso do número de arestas.
+
+\subsection{Resultados}
+
+A tabela \ref{1} contém os resultados de experimentos realizados através de resoluções de instâncias pelo solver e pela heurística. A heurística revela muito mais eficiente, com resultados razoavelmente próximos.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{l | r | r | r | r | r | r}
+\hline
+ & \multicolumn{3}{c|}{\textbf{Tempo (s)}} & \multicolumn{3}{c}{\textbf{Função Objetivo}} \\
+\hline
+\textbf{Instância} & \textbf{GLPK} & \textbf{Heurística} & \textbf{Aceleração} & \textbf{GLPK} & \textbf{Heurísitca} & \textbf{Distância} \\
+\hline
+\hline
+instancia00	& 0.1   & 0.001967  & 50.84 	& 126	& 192 & 52.38\% \\
+\hline
+instancia01	& 0.1	& 0.003974	& 25.16		& 259	& 478	& 84.56\% \\
+\hline
+instancia02	& 0.1	& 0.001583	& 63.17		& 223	& 366	& 64.13\% \\
+\hline
+instancia03	& 0.1	& 0.002525	& 39.60		& 176	& 336	& 90.91\% \\
+\hline
+instancia04	& 0.1	& 0.001606	& 62.27		& 123	& 198	& 60.98\% \\
+\hline
+instancia10	& 5.0	& 0.00322	& 1,552.80	& 99	& 157	& 58.59\% \\
+\hline
+instancia11	& 10.9	& 0.004333	& 2,515.58	& 181	& 375	& 107.18\% \\
+\hline
+instancia12	& 10.3	& 0.004534	& 2,271.72	& 111	& 189	& 70.27\% \\
+\hline
+instancia13	& 0.1	& 0.002177	& 45.93		& 63	& 92	& 46.03\% \\
+\hline
+instancia14	& 5.7	& 0.004289	& 1,328.98	& 194	& 305	& 57.22\% \\
+\hline
+instancia20	& 51.4	& 0.01535	& 3,348.53	& 152	& 296	& 94.74\% \\
+\hline
+instancia21	& 393.3	& 0.00822	& 47,846.72	& 133	& 212	& 59.40\% \\
+\hline
+instancia22	& 525.9	& 0.015281	& 34,415.29	& 162	& 316	& 95.06\% \\
+\hline
+instancia23	& 311.3	& 0.015981	& 19,479.38	& 293	& 458	& 56.31\% \\
+\hline
+instancia24	& 85.1	& 0.020247	& 4,203.09	& 347	& 543	& 56.48\% \\
+\hline
+\hline
+Média & & & 7,816.60 & & & 70.28\% \\
+\hline
+DPA\footnotemark & & & 14,232.63 & & & 18.99\% \\
+\hline
+\end{tabular}
+\caption{Tabela comparativa entre resultados do GLPK e da Heurística}
+\label{tab}
+\end{table}
+
+\footnotetext{Desvio Padrão Amostral}
+
+\section{CONCLUSÃO}
+
+O \textit{Single Source Fixed Charge Network Flow Problem} tem como base um grafo formado por um nó de oferta e nós de demanda ou transbordo conectados através de arcos com limites superiores de capacidade e custos fixos para a passagem de fluxo. Neste trabalho foram utilizadas duas estratégias para resolver o problema descrito acima.
+
+A primeira estratégia corresponde à utilização de um solver, o \textit{GLPSOL} do pacote \textit{GLPK}, que fornece resultados exatos para o problema. A segunda estratégia envolveu a eleaboração de um heurística baseada no caminho mínimo entre cada nó demanda e o nó de oferta.
+
+A heurística desenvolvida corresponde a um método iterativo que a cada iteração calcula o caminho mínimo entre o nó de oferta e um dos nós de demanda cuja demanda ainda não tenha sido completamente suprida e passar um fluxo por este caminho. Tal fluxo pode corresponder à capacidade máxima de passagem do caminho ou pode ser inferior a ela. Em ambos os casos a demanda pode ou não ser completamente atendida. Caso a demanda de um dado nó não seja suprida, deve-se calcular outros caminhos mínimos até que ela seja totalmente atendida.
+
+Como a heurística favorece a escolha de caminhos de menor custo, nem sempre seleciona o melhor caminho globalmente, uma vez que um caminho de maior custo poderia permitir uma maior passagem de fluxo e possivelmente diminuir o custo de atendimento da demanda de outros nós. Dessa forma, a heurística não é exata, mas fornece resultados próximos da solução ótima do problema, como comprovado através de experimentos.
+
+Ao final do trabalho foi possível perceber que o \textit{Single Source Fixed Charge Network Flow Problem} apresenta uma formulação simples, mas de difícil solução quando se procura obter a  solução ótima do problema. Porém, foi possível desenvolver uma heurística relativamente simples que possibilitou calcular soluções razoavelmente próximas da solução ótima.
+
+\nocite{*}
+\bibliographystyle{sbc}
+\bibliography{bib}
+
+\end{document}
