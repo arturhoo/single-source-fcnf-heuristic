@@ -84,6 +84,7 @@ y_{ij} =
   \end{array} \right.
 \]
 
+\newpage
 Dessa forma obtemos a seguinte formulação:
 
 \begin{center}
@@ -121,7 +122,6 @@ A seguir temos um exemplo de um grafo para o \textit{Single Source Fixed Charge 
   \caption{Exemplo de instância para o problema.}
   \label{ex}
 \end{figure}
-
 
 \section{RESOLUÇÃO DO PROBLEMA}
 
@@ -308,7 +308,7 @@ Para cada instância utilizada, foram aferidos o tempo de execução e o valor da f
 
 A tabela \ref{tab} contém os resultados de experimentos realizados através de resoluções de instâncias pelo solver e pela heurística.
 
-\begin{table}[H]
+\begin{table}[h!]
 \centering
 \begin{tabular}{l | r | r | r | r | r | r | r}
 \hline
@@ -342,7 +342,7 @@ DPA\footnotemark & & & & & & & 20.7\% \\
 \label{tab}
 \end{table}
 
-Nota-se facilmente que a heurística é mais eficiente em termos de tempo de execução do que o \textit{GLPSOL}, obtendo valores para a função objetivo razoáveis, com uma média de 47.4\% de distância da solução obtida pela primeira com relação ao ótimo. Os dados dessa tabela são representados na figura abaixo:
+Nota-se facilmente que a heurística é mais eficiente em termos de tempo de execução do que o \textit{GLPSOL}, obtendo valores para a função objetivo razoáveis, com uma média de 47.4\% de distância da solução obtida pela primeira com relação ao ótimo. Além disso, percebe-se que a densidade do grafo está diretamente relacionada ao tempo de execução de ambas as abordagens. Os dados dessa tabela são representados na figura abaixo:
 
 \begin{figure}[H]
 \centering
@@ -352,6 +352,8 @@ Nota-se facilmente que a heurística é mais eficiente em termos de tempo de execu
 \end{figure}
 
 É interessante notar que apesar da aceleração, que mede o quão mais rápido a implementação da heurística executou com relação o \textit{GLPSOL}, crescer de maneira exponencial, a distância da solução entre os dois cresce de maneira linear, o que, para alguns cenários de aplicação pode significar um benefício bastante significativo.
+
+Quanto a densidade do grafo, não é possível tirar nenhuma conclusão da influência desse, tanto para a aceleração quanto para a distância.
 
 A tabela abaixo apresenta as mesmas medidas, desta vez, variando-se o valor máximo para as demandas, que é um dos fatores relacionados com a complexidade da heurística proposta. Apesar disso, através das instâncias utilizadas, não foi possível traçar uma relação entre esse valor e a aceleração ou distância. Esse fato pode estar relacionado tanto ao tamanho reduzido dessas instâncias, quanto ao fato dessa valor máximo para as demandas influenciar de maneira decisiva somente no pior caso.
 

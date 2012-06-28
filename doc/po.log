@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.3-1.40.12 (TeX Live 2011) (format=pdflatex 2011.7.3)  28 JUN 2012 01:52
+This is pdfTeX, Version 3.1415926-2.3-1.40.12 (TeX Live 2011) (format=pdflatex 2011.7.3)  28 JUN 2012 02:18
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -549,15 +549,15 @@ File: ot1ptm.fd 2001/06/04 font definitions for OT1/ptm.
 * layout: <same size as paper>
 * layoutoffset:(h,v)=(0.0pt,0.0pt)
 * modes: 
-* h-part:(L,W,R)=(85.35826pt, 426.79135pt, 85.35826pt)
-* v-part:(T,H,B)=(99.58464pt, 674.33032pt, 71.13188pt)
+* h-part:(L,W,R)=(71.13188pt, 455.24411pt, 71.13188pt)
+* v-part:(T,H,B)=(85.35826pt, 688.5567pt, 71.13188pt)
 * \paperwidth=597.50787pt
 * \paperheight=845.04684pt
-* \textwidth=426.79135pt
-* \textheight=674.33032pt
-* \oddsidemargin=13.08827pt
-* \evensidemargin=13.08827pt
-* \topmargin=-9.68535pt
+* \textwidth=455.24411pt
+* \textheight=688.5567pt
+* \oddsidemargin=-1.1381pt
+* \evensidemargin=-1.1381pt
+* \topmargin=-23.91173pt
 * \headheight=12.0pt
 * \headsep=25.0pt
 * \topskip=12.0pt
@@ -616,16 +616,16 @@ map/pdftex.map}] <po-pics.pdf, id=18, page=1, 331.2375pt x 145.54375pt>
 File: po-pics.pdf Graphic file (type pdf)
 
 <use po-pics.pdf, page 1>
-Package pdftex.def Info: po-pics.pdf, page1 used on input line 119.
+Package pdftex.def Info: po-pics.pdf, page1 used on input line 120.
 (pdftex.def)             Requested size: 331.23668pt x 145.54338pt.
-LaTeX Font Info:    Try loading font information for OT1+phv on input line 121.
+LaTeX Font Info:    Try loading font information for OT1+phv on input line 122.
 
 
 (/usr/local/texlive/2011/texmf-dist/tex/latex/psnfss/ot1phv.fd
 File: ot1phv.fd 2001/06/04 scalable font definitions for OT1/phv.
 )
 LaTeX Font Info:    Font shape `OT1/phv/bx/n' in size <10> not available
-(Font)              Font shape `OT1/phv/b/n' tried instead on input line 121.
+(Font)              Font shape `OT1/phv/b/n' tried instead on input line 122.
 LaTeX Font Info:    Try loading font information for OMS+ptm on input line 134.
 
 
@@ -645,7 +645,6 @@ File: omlptm.fd
 LaTeX Font Info:    Font shape `OML/ptm/m/n' in size <10> not available
 (Font)              Font shape `OML/cmm/m/it' tried instead on input line 157.
  [3]
-[4]
 Underfull \hbox (badness 10000) detected at line 264
 [][]
  []
@@ -658,28 +657,22 @@ Underfull \hbox (badness 10000) in paragraph at lines 227--265
 
 Underfull \vbox (badness 10000) has occurred while \output is active []
 
+ [4]
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
  [5]
 LaTeX Font Info:    Font shape `OMS/ptm/m/n' in size <12> not available
 (Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 285.
 
-[6]
-Overfull \hbox (7.50853pt too wide) in paragraph at lines 313--341
- [][] 
- []
-
-<grafico1.pdf, id=58, 601.24625pt x 384.43625pt>
+[6] <grafico1.pdf, id=58, 601.24625pt x 384.43625pt>
 File: grafico1.pdf Graphic file (type pdf)
  <use grafico1.pdf>
 Package pdftex.def Info: grafico1.pdf used on input line 349.
 (pdftex.def)             Requested size: 426.79134pt x 272.89885pt.
 
-Underfull \vbox (badness 3333) has occurred while \output is active []
+Underfull \vbox (badness 10000) has occurred while \output is active []
 
  [7]
-Overfull \hbox (24.7768pt too wide) in paragraph at lines 360--382
- [][] 
- []
-
 [8 <./grafico1.pdf>] (./po.bbl) [9] (./po.aux)
 
 LaTeX Warning: There were multiply-defined labels.
@@ -688,7 +681,7 @@ LaTeX Warning: There were multiply-defined labels.
 Here is how much of TeX's memory you used:
  10131 strings out of 493633
  137149 string characters out of 3143378
- 437225 words of memory out of 3000000
+ 407226 words of memory out of 3000000
  13225 multiletter control sequences out of 15000+200000
  28597 words of font info for 57 fonts, out of 3000000 for 9000
  832 hyphenation exceptions out of 8191
@@ -711,7 +704,7 @@ ype1/urw/helvetic/uhvb8a.pfb></usr/local/texlive/2011/texmf-dist/fonts/type1/ur
 w/times/utmb8a.pfb></usr/local/texlive/2011/texmf-dist/fonts/type1/urw/times/ut
 mr8a.pfb></usr/local/texlive/2011/texmf-dist/fonts/type1/urw/times/utmri8a.pfb>
 
-Output written on po.pdf (9 pages, 247841 bytes).
+Output written on po.pdf (9 pages, 247971 bytes).
 PDF statistics:
  162 PDF objects out of 1000 (max. 8388607)
  114 compressed objects within 2 object streams
