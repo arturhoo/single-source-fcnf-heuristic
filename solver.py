@@ -73,13 +73,11 @@ def atualize4(DG, valor_fluxo, lista):
             break
 
 
-def ordena_nos_demanda_num_caminhos(DG, no_de_oferta, lista_nos_de_demanda):
+def ordena_nos_demanda_demanda(DG, no_de_oferta, lista_nos_de_demanda):
     lista_num_caminhos = []
-    for demanda in lista_nos_de_demanda:
-        lista_caminhos = all_simple_paths(DG, no_de_oferta, demanda)
-        lista_num_caminhos.append(len(list(lista_caminhos)))
-    lista_nos_de_demanda = [x for (y, x) in sorted(zip(lista_num_caminhos, \
-                                                       lista_nos_de_demanda))]
+    for no in lista_nos_de_demanda:
+        lista_num_caminhos.append(DG.node[no]['demand'])
+    return [x for (y, x) in sorted(zip(lista_num_caminhos, lista_nos_de_demanda))]
 
 
 def solve(DG):
@@ -87,8 +85,11 @@ def solve(DG):
     lista_nos_de_demanda = []
     no_de_oferta = carregue_no_de_oferta(DG)
     lista_nos_de_demanda = carregue_nos_de_demanda(DG)
-    ordena_nos_demanda_num_caminhos(DG, no_de_oferta, lista_nos_de_demanda)
     while len(lista_nos_de_demanda) > 0:
+        lista_nos_de_demanda = ordena_nos_demanda_demanda(DG,
+                                                          no_de_oferta,
+                                                          lista_nos_de_demanda)
+        lista_nos_de_demanda.reverse()
         no_de_demanda = lista_nos_de_demanda[0]
         dijkstra_path = nx.dijkstra_path(DG,
                                          source=no_de_oferta,
