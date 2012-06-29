@@ -4,10 +4,11 @@
 
 Enquanto existir nó de demanda não satisfeito:
 
-1. Menor caminho Dijkstra entre o nó de oferta e esse nó de demanda;
-2. Calcular fluxo com valor mínimo(demanda do nó, menor limite superior do
+1. Selecione aleatoriamente um nó de demanda;
+2. Menor caminho Dijkstra entre o nó de oferta e esse nó de demanda;
+3. Calcular fluxo com valor mínimo(demanda do nó, menor limite superior do
 caminho);
-3. Atualize:
+4. Atualize:
     1. Os limites superiores das arestas do caminho, subtraindo o fluxo que já
     passa por essas. Caso se torne nulo, defina custo infinito;
     2. Os custos não infinitos das arestar do caminho, tornando-os nulo, pois já
@@ -15,7 +16,7 @@ caminho);
     3. As demandas do nó de oferta e demanda. Caso a demanda do nó de demanda se
      torne nula, essa demanda está satisfeita;
     4. Os fluxos das arestas do caminho, incrementando-os com o valor do fluxo
-    calculado em `2`;
+    calculado em `3`;
 
 
 ## Gerador
@@ -46,7 +47,14 @@ onde:
     optional arguments:
       -h, --help  show this help message and exit
 
-Para cada instância são gerados dois arquivos, com o mesmo nome mas presentes em diferentes pastas. O formato do nome, `sXXdXXuXX`, representa as propriedades do grafo gerado, onde `sXX` representa o tamanho do grafo, `dXX` a densidade e `uXX` o valor máximo para as demandas. O primeiro arquivo serve de entrada para o `glpk` e está presente na pasta `instancias/glpk/`; o segundo está presente na pasta `instancias/py/` e é a representação serializada do grafo do tipo `networkx.Digraph` que pode ser utilizada no `solver.py` como demonstrado abaixo:
+Para cada instância são gerados dois arquivos, com o mesmo nome mas presentes em
+diferentes pastas. O formato do nome, `sXXdXXudXXucXX`, representa as
+propriedades do grafo gerado, onde `sXX` representa o tamanho do grafo, `dXX` a
+densidade, `udXX` o valor máximo para as demandas e `ucXX` o valor máximo para
+os custos. O primeiro arquivo serve de entrada para o `glpk` e está presente
+na pasta `instancias/glpk/`; o segundo está presente na pasta `instancias/py/` e
+é a representação serializada do grafo do tipo `networkx.Digraph` que pode ser
+utilizada no `solver.py` como demonstrado abaixo:
 
 ```python
 from cPickle import load
@@ -79,9 +87,60 @@ Gerando resultado:
 
 Que para esse caso, corresponde a solução ótima.
 
-Caso deseje rodar com uma instância já existente, que deve ser  uma
-serialização de um grafo  direcionado do pacote `networkx`, basta especificar o
+Caso deseje rodar com uma instância já existente, que deve ser uma
+serialização de um grafo  direcionado do pacote `networkx`, como aquelas geradas
+pelo gerador, basta especificar o
 caminho como no comando abaixo:
 
-    $ python solver.py -f instancia
+    $ python solver.py -i instancia
 
+### Configuração do ambiente Python
+
+Essas são as instruções para a configuração do ambiente Python em no
+Ubuntu 12.04
+
+Primeiramente certifique-se de que o sistema está atualizado
+
+    $ sudo apt-get update
+    $ sudo apt-get upgrade
+    $ sudo apt-get dist-upgrade
+
+Caso seja informado que é necessário reiniciar o sistema, faça-o
+
+    $ sudo shutdown -r now
+
+Em seguida, instala os pacotes python
+
+    $ sudo apt-get install python-setuptools python-pip python-dev
+
+Posteriormente, instale o [`virtualenv`](http://www.virtualenv.org/), que é uma
+ferramenta para criação de múltiplos ambientes Python
+
+    $ sudo pip install virtualenv
+
+Vamos instalar também o
+[`virtualenvwrapper`](http://www.doughellmann.com/projects/virtualenvwrapper/),
+que é uma extensão do `virtualenv`, tornando o gerenciamento desses ambientes
+isolados mais fácil
+
+    $ mkdir -p ~/.virtualenvs
+    $ echo 'export WORKON_HOME=~/.virtualenvs' >> ~/.bashrc
+    $ source .bashrc
+    $ sudo pip install virtualenvwrapper
+    $ echo 'source /usr/local/bin/virtualenvwrapper.sh' >> ~/.bashrc
+    $ source .bashrc
+
+Agora iremos criar o ambiente para o projeto `single-source-fcnf-problem`
+
+    $ mkvirtualenv po
+    $ workon po
+
+Todos as bibliotecas Python que instalarmos agora serão referentes a esse
+ambiente que criamos. Procedemos instalando a única biblioteca que é requisito
+do `solver`
+
+    (po)$ pip install networkx
+
+Pronto! O ambiente está configurado e agora é possível executar o solver
+
+    (po)$ python solver.py

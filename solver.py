@@ -4,6 +4,7 @@ import networkx as nx
 import argparse as ap
 import random as rand
 import sys
+import os
 from time import time
 from cPickle import load
 
@@ -122,13 +123,14 @@ def solve(DG):
 
 if __name__ == '__main__':
     parser = ap.ArgumentParser(description='Single Source FCNF Heuristic')
-    parser.add_argument('-f', '--file', help='arquivo de entrada')
+    parser.add_argument('-i', '--instancia', help='arquivo de entrada')
+    parser.add_argument('-o', '--saida', help='arquivo de saida')
     args = vars(parser.parse_args())
 
     DG = nx.DiGraph()
-    if args['file']:
+    if args['instancia']:
         try:
-            DG = load(open(args['file'], 'r'))
+            DG = load(open(args['instancia'], 'r'))
         except IOError as e:
             print "I/O error({0}): {1}".format(e.errno, e.strerror)
             sys.exit()
@@ -153,14 +155,25 @@ if __name__ == '__main__':
     start = time()
     DG = solve(DG)
     elapsed = (time() - start)
+
     # Imprima a solução
     edges = DG.edges(data=True)
     objective = 0
+    # Se o arquivo de saída existe, o limpe
+    if args['saida']:
+        if os.path.exists(args['saida']):
+            open(args['saida'], 'w').close()
     for edge in edges:
         if edge[2]['fluxo'] > 0:
             objective += DG_copy[edge[0]][edge[1]]['weight']
-        print '(%d, %d) -> Fluxo: %d' % (edge[0],
-                                         edge[1],
-                                         int(edge[2]['fluxo']))
+        if args['saida']:
+            saida = open(args['saida'], 'a')
+            saida.write('(%d, %d) -> Fluxo: %d\n' % (edge[0],
+                                                     edge[1],
+                                                     int(edge[2]['fluxo'])))
+        else:
+            print '(%d, %d) -> Fluxo: %d\n' % (edge[0],
+                                               edge[1],
+                                               int(edge[2]['fluxo']))
     print 'Tempo execução: %f' % (elapsed)
     print 'Objetivo: %d' % (objective)
