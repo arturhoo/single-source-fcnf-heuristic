@@ -96,8 +96,7 @@ caminho como no comando abaixo:
 
 ### Configuração do ambiente Python
 
-Essas são as instruções para a configuração do ambiente Python em no
-Ubuntu 12.04
+Essas são as instruções para a configuração do ambiente Python no Ubuntu 12.04
 
 Primeiramente certifique-se de que o sistema está atualizado
 

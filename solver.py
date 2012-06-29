@@ -171,6 +171,7 @@ if __name__ == '__main__':
             saida.write('(%d, %d) -> Fluxo: %d\n' % (edge[0],
                                                      edge[1],
                                                      int(edge[2]['fluxo'])))
+            saida.close()
         else:
             print '(%d, %d) -> Fluxo: %d\n' % (edge[0],
                                                edge[1],
