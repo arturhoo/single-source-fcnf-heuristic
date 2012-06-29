@@ -140,7 +140,8 @@ if __name__ == '__main__':
     size = n_dem + n_tr + 1
     file_name = 's' + str(size) + \
                 'd' + str(int(round(density, 3) * 100)) + \
-                'u' + str(u_dem)
+                'ud' + str(u_dem) + \
+                'uc' + str(u_cost)
 
     glpk_dir = 'instancias/glpk/'
     if not path.exists(glpk_dir):

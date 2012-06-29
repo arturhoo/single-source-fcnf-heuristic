@@ -163,4 +163,4 @@ if __name__ == '__main__':
                                          edge[1],
                                          int(edge[2]['fluxo']))
     print 'Tempo execução: %f' % (elapsed)
-    print 'Objective: %d' % (objective)
+    print 'Objetivo: %d' % (objective)
