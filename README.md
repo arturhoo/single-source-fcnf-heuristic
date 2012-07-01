@@ -63,6 +63,16 @@ DG = load(open('instancias/py/s10d50u10', 'r'))
 solve(DG)
 ```
 
+### Insâncias geradas
+
+Foram gerados três conjuntos de instâncias que estão presentes nas pastas
+`instancias`, `instancias2` e `instancias3`. Esses conjuntos são relativos aos
+três experimentos realizados, respectivamente. Maiores informações com relação
+a esses experimentos podem ser encontrados na documentação, presente na pasta
+`doc`.
+
+Esses conjuntos estão compactados nos arquivos `instancias1.tar.gz`,
+`instancias2.tar.gz` e `instancias3.tar.gz`, respectivamente.
 
 ## Implementação
 
