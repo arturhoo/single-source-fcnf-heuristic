@@ -21,6 +21,6 @@ do
     for i in 1 2 3
     do
         echo '>> Execução Python '$i
-        python solver.py -f $f | egrep -i 'tempo|objetivo'
+        python solver.py -i $f | egrep -i 'tempo|objetivo'
     done
 done
