@@ -298,21 +298,23 @@ As capacidades, os custos dos arcos e as demandas têm valores máximos definidos 
 
 A viabilidade das instâncias é garantida através do teste de cada uma gerada pelo \textit{solver}. Como ele informa caso a instância seja inviável, aquelas por ele rotuladas dessa maneira são descartadas.
 
-O conjunto de instâncias escolhidas para a análise dos resultados foram divididas em grafos com $10, 20$ e $30$ nós. Para cada tamanho do grafo, foi também variada a densidade, com valores $0.25$, $0.5$, $0.75$ e $1$. O valor máximo para as demandas nesse conjunto foi de $10$, os valor máximo para a capacidade dos arcos foi fixado em $8$ e para os custos em $10$. Não foi possível utilizar instâncias de tamanho maior, pois o tempo para ser achar a solução ótima através do \textit{GLPSOL} é proibitivo.
+Para a primeira análise, o conjunto de instâncias escolhidas foram divididas em grafos com $10, 20$, $30$, $40$ e $50$ nós. Para cada tamanho do grafo, foi também variada a densidade, com valores $0.25$, $0.5$, $0.75$ e $1$. O valor máximo para as demandas nesse conjunto foi de $10$, os valor máximo para a capacidade dos arcos foi fixado em $8$ e para os custos em $10$. Não foi possível utilizar instâncias de tamanho maior, pois o tempo para ser achar a solução ótima através do \textit{GLPSOL} é proibitivo.
 
-Foram também geradas instâncias adicionais com valores máximo para as demandas de $10$, $20$, $30$, $40$, $50$, $60$ e $70$. Fixou-se o tamanho das instâncias desse conjunto em $10$ nós e a densidade em $0.25$.
+Na segunda análise variou-se os valores máximos para as demandas: $10$, $20$, $30$, $40$, $50$ e $60$. Fixou-se o tamanho das instâncias desse conjunto em $15$ nós e a densidade em $0.5$.
+
+Na terceira e última análise, variou-se o valor para o custo máximo das arestas, com valores $10$, $20$, $30$, $40$, $50$, $60$ e $70$. Nesse conjunto todos os grafos possuíam $20$ nós com densidade de valor $0.5$.
 
 \subsection{Procedimentos}
 
 Com o intuito de se obter testes mais consistentes, os experimentos foram executados em ambiente virtualizado, com capacidade de processamento e memória primário reduzidas, 30\% da capacidade da máquina hospedeira e 384MiB, respectivamente. O sistema operacional do ambiente virtualizado era Ubuntu 12.04 64 bits e os softwares utilizados foram Python versão 2.7.3, GLPSOL: GLPK LP/MIP Solver versão 4.47 e GCC versão 4.6.3. A máquina hospedeira possuía sistema operacional Mac OS X 10.7.4, processador \textit{quad-core} de 2.3GHz e memória primária com capacidade de 8GiB.
 
-Para cada instância utilizada, foram aferidos o tempo de execução e o valor da função objetivo tanto no \textit{GLPSOL} quanto na implementação da heurística. É importante ressaltar que foram realizadas três execuções e aferidos os valores médios, tanto para o tempo de execução, quanto para o valor da função objetivo (no caso dos procedimentos da implementação da heurística).
+Para cada instância utilizada, foram aferidos o tempo de execução e o valor da função objetivo tanto no \textit{GLPSOL} quanto na implementação da heurística. É importante ressaltar que foram realizadas três execuções e aferidos os valores médios, tanto para o tempo de execução, quanto para o valor da função objetivo (no caso dos procedimentos da implementação da heurística). Os dados completos dos experimentos podem ser encontrados na planilha anexa que acompanha esse documento.
 
 \subsection{Resultados}
 
-A tabela \ref{tab} contém os resultados de experimentos realizados através de resoluções de instâncias pelo solver e pela heurística.
+A tabela \ref{tab1} contém os resultados de experimentos realizados através de resoluções de instâncias pelo solver e pela heurística.
 
-\begin{table}[h!]
+\begin{table}[H]
 \centering
 \begin{tabular}{l | r | r | r | r | r | r | r}
 \hline
@@ -321,45 +323,57 @@ A tabela \ref{tab} contém os resultados de experimentos realizados através de re
 \textbf{Nós} & \textbf{Dens.} & \textbf{GLPK} & \textbf{Heurística} & \textbf{Aceleração} & \textbf{GLPK} & \textbf{Heurísitca} & \textbf{Distância} \\
 \hline
 \hline
-\multirow{4}{*}{10}	&	0.249	& 0.1		& 0.001		& 172.12		& 112	& 128	& 14.3\% \\ \cline{2-8}
-					&	0.5		& 0.1		& 0.001		& 91.66			& 259	& 281	& 83.7\% \\ \cline{2-8}
-					&	0.749	& 0.1		& 0.001		& 77.34			& 223	& 252	& 56.5\% \\ \cline{2-8}
-					&	1.00	& 0.1		& 0.001		& 73.10			& 176	& 174	& 52.6\% \\ \cline{2-8}
+\multirow{4}{*}{10}	&	0.249	& 0.1		& 0.001		& 115.74		& 33	& 35.66		& 8.1\%  \\ \cline{2-8}
+					&	0.5		& 0.1		& 0.001		& 63.21			& 30	& 38.66		& 28.9\% \\ \cline{2-8}
+					&	0.749	& 0.1		& 0.002		& 55.32			& 19	& 32.33		& 70.2\% \\ \cline{2-8}
+					&	1.00	& 0.1		& 0.002		& 66.62			& 4		& 4.33		& 8.3\%  \\ \cline{2-8}
 \hline
-\multirow{4}{*}{20}	&	0.25	& 0.2		& 0.002		& 92.94			& 108	& 146	& 35.2\% \\ \cline{2-8}
-					&	0.5		& 8.3		& 0.006		& 1,355.10		& 355	& 576	& 62.3\% \\ \cline{2-8}
-					&	0.75	& 3.3		& 0.006		& 524.14		& 161	& 301	& 87.0\% \\ \cline{2-8}
-					&	1.00	& 5.1		& 0.010		& 487.99		& 94	& 166	& 76.6\% \\ \cline{2-8}
+\multirow{4}{*}{20}	&	0.25	& 0.1		& 0.006		& 15.80			& 78	& 112.66	& 44.4\% \\ \cline{2-8}
+					&	0.5		& 0.1		& 0.010		& 9.58			& 64	& 86.66		& 35.4\% \\ \cline{2-8}
+					&	0.75	& 1.1		& 0.007		& 167.11		& 23	& 29.00		& 26.1\% \\ \cline{2-8}
+					&	1.00	& 0.8		& 0.014		& 58.66			& 36	& 51.66		& 43.5\% \\ \cline{2-8}
 \hline
-\multirow{4}{*}{30}	&	0.249	& 10.7		& 0.008		& 1,318.06		& 315	& 553	& 75.6\% \\ \cline{2-8}
-					&	0.5		& 1390.7	& 0.014 	& 102,611.97	& 370	& 578	& 56.2\% \\ \cline{2-8}
-					&	0.749	& 453.2		& 0.017		& 25,966.88		& 205	& 306	& 49.3\% \\ \cline{2-8}
-					&	1.00	& 925.7		& 0.035		& 26,493,99		& 212	& 342	& 61.3\% \\ \cline{2-8}
+\multirow{4}{*}{30}	&	0.249	& 3.1		& 0.014		& 228.99		& 72	& 115.33	& 60.2\% \\ \cline{2-8}
+					&	0.5		& 68.6		& 0.028 	& 2,467.51		& 77	& 128.66	& 67.1\% \\ \cline{2-8}
+					&	0.749	& 2.0		& 0.033		& 61.04			& 67	& 83.00		& 23.9\% \\ \cline{2-8}
+					&	1.00	& 41.9		& 0.035		& 1,185.97		& 53	& 67.66		& 27.7\% \\ \cline{2-8}
+\hline
+\multirow{4}{*}{40}	&	0.249	& 1,099.3	& 0.034		& 32,754.65		& 94	& 156.33	& 66.3\% \\ \cline{2-8}
+					&	0.5		& 11,622.3	& 0.053 	& 219,423.80	& 76	& 125.67	& 65.4\% \\ \cline{2-8}
+					&	0.749	& 11.8		& 0.066		& 179.04		& 69	& 82.67		& 19.8\% \\ \cline{2-8}
+					&	1.00	& 1.0		& 0.066		& 15.25			& 45	& 53.33		& 18.5\% \\ \cline{2-8}
+\hline
+\multirow{4}{*}{50}	&	0.249	& 1,699.7	& 0.064		& 26,734.13		& 116	& 218.67	& 88.5\% \\ \cline{2-8}
+					&	0.5		& 1,027.0	& 0.102 	& 10,092.04		& 105	& 151.33	& 44.1\% \\ \cline{2-8}
+					&	0.749	& 11.5		& 0.079		& 146.57		& 77	& 108.33	& 40.7\% \\ \cline{2-8}
+					&	1.00	& 5.4		& 0.120		& 45.04			& 29	& 32.33		& 11.5\% \\ \cline{2-8}
 \hline
 \hline
-Média & & & & & & & 47.4\% \\
+Média & & & & & & & 29.6\% \\
 \hline
-DPA\footnotemark & & & & & & & 20.7\% \\
+DPA\footnotemark & & & & & & & 20.8\% \\
 \hline
 \end{tabular}
 \caption[]{Tabela comparativa para diferentes tamanhos e densidades\\\begin{footnotesize}Valor máximo para as demadas = 10\end{footnotesize}}
-\label{tab}
+\label{tab1}
 \end{table}
 
-Nota-se facilmente que a heurística é mais eficiente em termos de tempo de execução do que o \textit{GLPSOL}, obtendo valores para a função objetivo razoáveis, com uma média de 47.4\% de distância da solução obtida pela primeira com relação ao ótimo. Além disso, percebe-se que a densidade do grafo está diretamente relacionada ao tempo de execução de ambas as abordagens. Os dados dessa tabela são representados na figura abaixo:
+\footnotetext{Desvio Padrão Amostral}
+
+Nota-se facilmente que a heurística é mais eficiente em termos de tempo de execução do que o \textit{GLPSOL}, obtendo valores para a função objetivo razoáveis, com uma média de 29.6\% de distância da solução obtida pela primeira com relação ao ótimo. Além disso, percebe-se que o tamanho do grafo está diretamente relacionado ao tempo de execução de ambas as abordagens. A mesma conclusão não pode ser obtida para diferentes densidades. Os dados dessa tabela são representados na figura abaixo:
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=150mm]{grafico1.pdf}
+\caption{Representação dos dados da tabela \ref{tab1}}
 \label{fig1}
-\caption{Representação dos dados da tabela \ref{tab}}
 \end{figure}
 
 É interessante notar que apesar da aceleração, que mede o quão mais rápido a implementação da heurística executou com relação o \textit{GLPSOL}, crescer de maneira exponencial, a distância da solução entre os dois cresce de maneira linear, o que, para alguns cenários de aplicação pode significar um benefício bastante significativo.
 
 Quanto a densidade do grafo, não é possível tirar nenhuma conclusão da influência desse, tanto para a aceleração quanto para a distância.
 
-A tabela abaixo apresenta as mesmas medidas, desta vez, variando-se o valor máximo para as demandas, que é um dos fatores relacionados com a complexidade da heurística proposta. Apesar disso, através das instâncias utilizadas, não foi possível traçar uma relação entre esse valor e a aceleração ou distância. Esse fato pode estar relacionado tanto ao tamanho reduzido dessas instâncias, quanto ao fato dessa valor máximo para as demandas influenciar de maneira decisiva somente no pior caso.
+A tabela abaixo apresenta as mesmas medidas, desta vez, variando-se o valor máximo para as demandas, que é um dos fatores relacionados com a complexidade da heurística proposta.
 
 \begin{table}[H]
 \centering
@@ -370,26 +384,72 @@ A tabela abaixo apresenta as mesmas medidas, desta vez, variando-se o valor máxi
 \textbf{Valor Máx. Dem.} & \textbf{GLPK} & \textbf{Heurística} & \textbf{Aceleração} & \textbf{GLPK} & \textbf{Heurísitca} & \textbf{Distância} \\
 \hline
 \hline
-10		& 0.1		& 0.0007	& 153.14	& 51	& 56 	& 9.8\% \\
+10		& 0.2	& 0.004	& 53.68	& 34	& 56.00 	& 9.8\% \\
 \hline
-20		& 0.1		& 0.0005	& 216.45	& 40	& 45	& 12.5\% \\
+20		& 0.2	& 0.005	& 52.37	& 74	& 95.67		& 12.5\% \\
 \hline
-30		& 0.1		& 0.0008	& 128.53	& 39	& 59	& 51.3\% \\
+30		& 0.1	& 0.003	& 35.03	& 50	& 62.33		& 51.3\% \\
 \hline
-40 		& 0.1		& 0.0006	& 168.35	& 77	& 81	& 5.2\% \\
+40 		& 0.2	& 0.003	& 78.13	& 57	& 76.00		& 5.2\% \\
 \hline
-50		& 0.1		& 0.0005	& 200.00	& 45	& 60	& 33.3\% \\
+50		& 0.2	& 0.003	& 63.68	& 46	& 55.67		& 33.3\% \\
 \hline
-60		& 0.1		& 0.0006	& 177.94	& 46	& 52	& 13.0\% \\
-\hline
-70		& 0.1		& 0.0005	& 202.84	& 49	& 56	& 14.3\% \\
+60		& 0.1	& 0.004	& 36.75	& 88	& 138.33	& 13.0\% \\
 \hline
 \end{tabular}
-\caption[]{Tabela comparativa para diferentes valores máximos para demanda\\\begin{footnotesize}Número de nós = 10; Densidade = 0.249\end{footnotesize}}
-\label{tab}
+\caption[]{Tabela comparativa para diferentes valores máximos para demanda\\\begin{footnotesize}Número de nós = 15; Densidade = 0.5\end{footnotesize}}
+\label{tab2}
 \end{table}
 
-\footnotetext{Desvio Padrão Amostral}
+Nota-se na figura \ref{fig2}, que representa os dados da tabela \ref{tab2}, que não é possível tirar nenhuma conclusão sobre o impacto dos valores máximos para as demandas na aceleração ou na distância. Esse fato pode estar relacionado tanto ao tamanho reduzido dessas instâncias, quanto ao fato dessa valor máximo para as demandas influenciar de maneira decisiva somente no pior caso.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=150mm]{grafico2.pdf}
+\caption{Representação dos dados da tabela \ref{tab2}}
+\label{fig2}
+\end{figure}
+
+A tabela \ref{tab3} apresenta novamente as mesmas medidas, mas desta vez variando-se o custo máximo das arestas. O aumento do valor do custo máximo implica numa maior amplitude para essa variável nos grafos gerados.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{c | r | r | r | r | r | r}
+\hline
+ & \multicolumn{3}{c|}{\textbf{Tempo (s)}} & \multicolumn{3}{c}{\textbf{Função Objetivo}} \\
+\hline
+\textbf{Valor Máx. Custo} & \textbf{GLPK} & \textbf{Heurística} & \textbf{Aceleração} & \textbf{GLPK} & \textbf{Heurísitca} & \textbf{Distância} \\
+\hline
+\hline
+10		& 1.1	& 0.007	& 53.68	& 34	& 48.67		& 9.8\% \\
+\hline
+20		& 1.1	& 0.007	& 52.37	& 99	& 164.00	& 12.5\% \\
+\hline
+30		& 7.0	& 0.008	& 35.03	& 219	& 302.00	& 51.3\% \\
+\hline
+40 		& 2.5	& 0.009	& 78.13	& 228	& 314.67	& 5.2\% \\
+\hline
+50		& 4.9	& 0.009	& 63.68	& 425	& 622.00	& 33.3\% \\
+\hline
+60		& 13.2	& 0.008	& 36.75	& 499	& 746.67	& 13.0\% \\
+\hline
+70		& 5.8	& 0.009	& 36.75	& 430	& 646.67	& 13.0\% \\
+\hline
+\end{tabular}
+\caption[]{Tabela comparativa para diferentes valores máximos para o custo\\\begin{footnotesize}Número de nós = 20; Densidade = 0.5\end{footnotesize}}
+\label{tab3}
+\end{table}
+
+Nota-se na figura \ref{fig3} que, seguindo o aumento linear dos valores do custo, está o crescimento, também linear, da açeleração. Todavia, a qualidade da solução da heurística não aparenta ser comprometida com esse aumento dos valores dos custos. Essas características, novamente, para alguns cenários, pode representar um benefício interessante.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=150mm]{grafico3.pdf}
+\caption{Representação dos dados da tabela \ref{tab3}}
+\label{fig3}
+\end{figure}
+
+
 
 \section{CONCLUSÃO}
 
